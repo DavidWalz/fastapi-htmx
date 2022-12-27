@@ -4,8 +4,7 @@ Based on Rommel Terrence Juanillo's [FastAPI Todo example](https://github.com/re
 
 The goal is to try out [HTMX](https://htmx.org/).
 
-
-## Components
+### Components
 
 - HTMX - HTML extension
 - UI-Kit - UI components
@@ -13,5 +12,8 @@ The goal is to try out [HTMX](https://htmx.org/).
 - FastAPI - backend
 - SQLAlchemy + SQLite
 
+### Links
+
+[Moving from react to htmx](https://htmx.org/essays/a-real-world-react-to-htmx-port/)
 
 ![](https://htmx.org/img/memes/fullstack.jpg)
