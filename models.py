@@ -1,6 +1,4 @@
-from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import Session
 
 from database import Base
@@ -28,18 +26,23 @@ def get_todo(db: Session, item_id: int):
 
 def update_todo(db: Session, item_id: int, content: str):
     todo = get_todo(db, item_id)
-    todo.content = content
+    todo.content = content  # type: ignore
     db.commit()
     db.refresh(todo)
     return todo
 
 
 def get_todos(db: Session, session_key: str, skip: int = 0, limit: int = 100):
-    return db.query(ToDo).filter(ToDo.session_key == session_key).offset(skip).limit(limit).all()
+    return (
+        db.query(ToDo)
+        .filter(ToDo.session_key == session_key)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def delete_todo(db: Session, item_id: int):
     todo = get_todo(db, item_id)
     db.delete(todo)
     db.commit()
-

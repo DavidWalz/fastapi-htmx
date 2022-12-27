@@ -34,7 +34,7 @@ def home(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/add", response_class=HTMLResponse)
 def post_add(request: Request, content: str = Form(...), db: Session = Depends(get_db)):
-    session_key = request.cookies.get("session_key")
+    session_key = request.cookies.get("session_key", "")
     todo = create_todo(db, content=content, session_key=session_key)
     context = {"request": request, "todo": todo}
     return templates.TemplateResponse("todo/item.html", context)
@@ -62,3 +62,9 @@ def put_edit(
 @app.delete("/delete/{item_id}", response_class=Response)
 def delete(item_id: int, db: Session = Depends(get_db)):
     delete_todo(db, item_id)
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
