@@ -12,3 +12,6 @@ The goal is to try out [HTMX](https://htmx.org/).
 - Jinja2 - HTML templating
 - FastAPI - backend
 - SQLAlchemy + SQLite
+
+
+![](https://htmx.org/img/memes/fullstack.jpg)
