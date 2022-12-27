@@ -1,29 +1,18 @@
 import uuid
 
-from fastapi import Depends, FastAPI, Form, Request, Response
+from fastapi import FastAPI, Form, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
 
-from database import Base, SessionLocal, engine
-from models import create_todo, delete_todo, get_todo, get_todos, update_todo
-
-Base.metadata.create_all(bind=engine)
+from database import get_db, create_todo, delete_todo, get_todo, get_todos, update_todo
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+db = get_db()
 
 
 @app.get("/", response_class=HTMLResponse)
-def home(request: Request, db: Session = Depends(get_db)):
+def home(request: Request):
     session_key = request.cookies.get("session_key", uuid.uuid4().hex)
     todos = get_todos(db, session_key)
     context = {"request": request, "todos": todos, "title": "Home"}
@@ -33,7 +22,7 @@ def home(request: Request, db: Session = Depends(get_db)):
 
 
 @app.post("/add", response_class=HTMLResponse)
-def post_add(request: Request, content: str = Form(...), db: Session = Depends(get_db)):
+def post_add(request: Request, content: str = Form(...)):
     session_key = request.cookies.get("session_key", "")
     todo = create_todo(db, content=content, session_key=session_key)
     context = {"request": request, "todo": todo}
@@ -41,26 +30,21 @@ def post_add(request: Request, content: str = Form(...), db: Session = Depends(g
 
 
 @app.get("/edit/{item_id}", response_class=HTMLResponse)
-def get_edit(request: Request, item_id: int, db: Session = Depends(get_db)):
+def get_edit(request: Request, item_id: int):
     todo = get_todo(db, item_id)
     context = {"request": request, "todo": todo}
     return templates.TemplateResponse("todo/form.html", context)
 
 
 @app.put("/edit/{item_id}", response_class=HTMLResponse)
-def put_edit(
-    request: Request,
-    item_id: int,
-    content: str = Form(...),
-    db: Session = Depends(get_db),
-):
+def put_edit(request: Request, item_id: int, content: str = Form(...)):
     todo = update_todo(db, item_id, content)
     context = {"request": request, "todo": todo}
     return templates.TemplateResponse("todo/item.html", context)
 
 
 @app.delete("/delete/{item_id}", response_class=Response)
-def delete(item_id: int, db: Session = Depends(get_db)):
+def delete(item_id: int):
     delete_todo(db, item_id)
 
 
