@@ -1,23 +1,12 @@
-import random
 import uuid
-from datetime import timedelta
 
-from fastapi import Depends
-from fastapi import FastAPI, Form
-from fastapi import Request, Response
+from fastapi import Depends, FastAPI, Form, Request, Response
 from fastapi.responses import HTMLResponse
-
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from database import Base
-from database import SessionLocal
-from database import engine
-from models import create_todo
-from models import delete_todo
-from models import get_todo
-from models import get_todos
-from models import update_todo
+from database import Base, SessionLocal, engine
+from models import create_todo, delete_todo, get_todo, get_todos, update_todo
 
 Base.metadata.create_all(bind=engine)
 
@@ -37,11 +26,7 @@ def get_db():
 def home(request: Request, db: Session = Depends(get_db)):
     session_key = request.cookies.get("session_key", uuid.uuid4().hex)
     todos = get_todos(db, session_key)
-    context = {
-        "request": request,
-        "todos": todos,
-        "title": "Home"
-    }
+    context = {"request": request, "todos": todos, "title": "Home"}
     response = templates.TemplateResponse("home.html", context)
     response.set_cookie(key="session_key", value=session_key, expires=259200)  # 3 days
     return response
@@ -63,7 +48,12 @@ def get_edit(request: Request, item_id: int, db: Session = Depends(get_db)):
 
 
 @app.put("/edit/{item_id}", response_class=HTMLResponse)
-def put_edit(request: Request, item_id: int, content: str = Form(...), db: Session = Depends(get_db)):
+def put_edit(
+    request: Request,
+    item_id: int,
+    content: str = Form(...),
+    db: Session = Depends(get_db),
+):
     todo = update_todo(db, item_id, content)
     context = {"request": request, "todo": todo}
     return templates.TemplateResponse("todo/item.html", context)
